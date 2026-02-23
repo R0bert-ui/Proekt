@@ -1,4 +1,5 @@
 <?php
+require_once '../auth/auth_check.php';
 session_start();
 
 // Если пользователь не авторизован, редирект на index.php

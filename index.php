@@ -149,13 +149,13 @@ a:hover{border-color:#3498db;color:#3498db;}
     <div class="overlay">
       <div class="overlay-panel overlay-left">
         <h1>Уже с нами?</h1>
-        <p>Войдите в личный кабинет, чтобы управлять бронированием и гаражом.</p>
+        <p>Войдите в личный кабинет, чтобы управлять бронированием и покупками.</p>
         <button class="ghost" id="signIn">Войти</button>
       </div>
 
       <div class="overlay-panel overlay-right">
         <h1>Впервые у нас?</h1>
-        <p>Зарегистрируйтесь, чтобы забронировать тест-драйв и собрать авто мечты.</p>
+        <p>Зарегистрируйтесь, чтобы забронировать тест-драйв и купить авто мечты.</p>
         <button class="ghost" id="signUp">Регистрация</button>
       </div>
     </div>
