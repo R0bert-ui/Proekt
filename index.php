@@ -33,7 +33,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'register') {
         }
     }
 }
-
 // --------------------- ВХОД ---------------------
 if (isset($_POST['action']) && $_POST['action'] === 'login') {
     $email = trim($_POST['email'] ?? '');
@@ -51,12 +50,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         } elseif (!password_verify($password, $user['password'])) {
             $errors[] = "Неверный пароль";
         } else {
-            // Устанавливаем сессию
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['role'];
-
-            // При успешном входе делаем редирект на home.php
+            // При успешном входе делаем редирект
             header('Location: public/home.php');
             exit;
         }
@@ -176,7 +173,6 @@ signInButton.addEventListener('click',()=>{container.classList.remove("right-pan
 container.classList.add("right-panel-active");
 <?php endif; ?>
 
-// Авто-скрытие сообщений через 3 секунды
 const msg = document.getElementById('msg');
 if(msg){
     setTimeout(()=>{ msg.style.display='none'; }, 3000);
