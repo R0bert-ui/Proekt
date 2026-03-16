@@ -22,7 +22,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'register') {
         $stmt->execute([$email]);
         if ($stmt->fetch()) $errors[] = "Такой email уже есть";
     }
-
     if (empty($errors)) {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
@@ -60,7 +59,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -104,20 +102,16 @@ a:hover{border-color:#3498db;color:#3498db;}
 </style>
 </head>
 <body>
-
 <div class="container" id="container">
-
   <div class="form-container register-container">
     <form method="POST">
       <h1>Создать аккаунт</h1>
-
       <?php if(!empty($errors) && isset($_POST['action']) && $_POST['action']==='register'): ?>
         <div class="message error" id="msg"><?php echo htmlspecialchars($errors[0]); ?></div>
       <?php endif; ?>
       <?php if(!empty($success) && isset($_POST['action']) && $_POST['action']==='register'): ?>
         <div class="message success" id="msg"><?php echo htmlspecialchars($success); ?></div>
       <?php endif; ?>
-
       <input type="text" name="name" placeholder="Имя и Фамилия" required />
       <input type="email" name="email" placeholder="Электронная почта" required />
       <input type="password" name="password" placeholder="Придумайте пароль" required />
@@ -125,15 +119,12 @@ a:hover{border-color:#3498db;color:#3498db;}
       <input type="hidden" name="action" value="register">
     </form>
   </div>
-
   <div class="form-container login-container">
     <form method="POST">
       <h1>Личный кабинет</h1>
-
       <?php if(!empty($errors) && isset($_POST['action']) && $_POST['action']==='login'): ?>
         <div class="message error" id="msg"><?php echo htmlspecialchars($errors[0]); ?></div>
       <?php endif; ?>
-
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Пароль" required />
       <a href="#">Забыли пароль?</a>
@@ -157,17 +148,13 @@ a:hover{border-color:#3498db;color:#3498db;}
       </div>
     </div>
   </div>
-
 </div>
-
 <script>
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
-
 signUpButton.addEventListener('click',()=>{container.classList.add("right-panel-active");});
 signInButton.addEventListener('click',()=>{container.classList.remove("right-panel-active");});
-
 // Авто-переключение на регистрацию если была регистрация с ошибкой
 <?php if(isset($_POST['action']) && $_POST['action']==='register'): ?>
 container.classList.add("right-panel-active");
