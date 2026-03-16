@@ -311,7 +311,455 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             grid-column: 1 / -1;
         }
 
-        /* Адаптивность */
+        /* Слайдер */
+        .slider-section {
+            position: relative;
+            width: 100%;
+            height: 560px;
+            border-radius: 0;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slider-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .slider-item.active {
+            opacity: 1;
+        }
+
+        .slider-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0) 100%);
+            z-index: 1;
+        }
+
+        .slider-item img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        .slider-click-zones {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            z-index: 1;
+        }
+
+        .slider-zone {
+            flex: 1;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .slider-zone-left {
+            background: transparent;
+        }
+
+        .slider-zone-right {
+            background: transparent;
+        }
+
+        .slider-content {
+            position: relative;
+            z-index: 2;
+            width: auto;
+            color: white;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            margin-right: 40px;
+            margin-left: 60px;
+        }
+
+        .slider-info {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(15px);
+            padding: 28px 32px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 320px;
+            height: 340px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slider-content h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            opacity: 1;
+            text-shadow: none;
+            align-self: auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slider-content .slider-model {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 28px;
+            font-weight: 300;
+            text-shadow: none;
+            align-self: auto;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .slider-content .slider-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+            align-self: auto;
+            flex-grow: 1;
+        }
+
+        .slider-spec {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            backdrop-filter: none;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .slider-spec-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 6px;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        .slider-spec-value {
+            font-size: 17px;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        .slider-price {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            opacity: 1;
+            text-shadow: none;
+            align-self: auto;
+        }
+
+        .slider-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            color: #2c2c2c;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+            align-self: auto;
+            width: fit-content;
+        }
+
+        .slider-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            background: #f5f5f5;
+        }
+
+        .slider-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .slider-dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .slider-dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 5px;
+        }
+
+        .slider-nav {
+            display: none;
+        }
+
+        .slider-prev {
+            display: none;
+        }
+
+        .slider-next {
+            display: none;
+        }
+
+        /* Адаптивность слайдера */
+        @media (max-width: 768px) {
+            .slider-section {
+                height: 360px;
+                margin-bottom: 30px;
+            }
+
+            .slider-content {
+                margin-right: 0;
+                margin-left: 20px;
+            }
+
+            .slider-info {
+                padding: 24px 20px;
+                width: 280px;
+                height: 320px;
+                background: rgba(0, 0, 0, 0.35);
+            }
+
+            .slider-content h2 {
+                font-size: 27px;
+                margin-bottom: 4px;
+            }
+
+            .slider-content .slider-model {
+                font-size: 15px;
+                margin-bottom: 20px;
+            }
+
+            .slider-content .slider-specs {
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                margin-bottom: 12px;
+                flex-grow: 1;
+            }
+
+            .slider-spec {
+                padding-bottom: 8px;
+            }
+
+            .slider-spec-label {
+                font-size: 11px;
+                margin-bottom: 5px;
+            }
+
+            .slider-spec-value {
+                font-size: 15px;
+            }
+
+            .slider-price {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+
+            .slider-btn {
+                padding: 11px 24px;
+                font-size: 13px;
+            }
+
+            .slider-controls {
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                z-index: 10;
+            }
+
+            .slider-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                z-index: 11;
+            }
+
+            .slider-prev {
+                left: 16px;
+            }
+
+            .slider-next {
+                right: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slider-section {
+                height: 380px;
+                margin-bottom: 24px;
+            }
+
+            .slider-content {
+                margin-right: 0;
+                margin-left: 16px;
+            }
+
+            .slider-info {
+                padding: 20px 16px;
+                background: rgba(0, 0, 0, 0.35);
+                width: 240px;
+                height: 300px;
+            }
+
+            .slider-content h2 {
+                font-size: 22px;
+                margin-bottom: 3px;
+            }
+
+            .slider-content .slider-model {
+                font-size: 13px;
+                margin-bottom: 14px;
+            }
+
+            .slider-content .slider-specs {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                margin-bottom: 10px;
+                flex-grow: 1;
+            }
+
+            .slider-spec {
+                padding-bottom: 8px;
+            }
+
+            .slider-spec-label {
+                font-size: 10px;
+                margin-bottom: 4px;
+            }
+
+            .slider-spec-value {
+                font-size: 13px;
+            }
+
+            .slider-price {
+                font-size: 22px;
+                margin-bottom: 12px;
+            }
+
+            .slider-btn {
+                padding: 11px 24px;
+                font-size: 13px;
+            }
+
+            .slider-nav {
+                display: none;
+            }
+
+            .slider-prev {
+                display: none;
+            }
+
+            .slider-next {
+                display: none;
+            }
+
+            .slider-controls {
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                gap: 8px;
+                z-index: 10;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .slider-section {
+                height: 320px;
+            }
+
+            .slider-content {
+                margin-right: 0;
+                margin-left: 12px;
+            }
+
+            .slider-info {
+                padding: 16px 12px;
+                background: rgba(0, 0, 0, 0.35);
+                width: 200px;
+                height: 280px;
+            }
+
+            .slider-content h2 {
+                font-size: 18px;
+                margin-bottom: 3px;
+            }
+
+            .slider-content .slider-model {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+
+            .slider-content .slider-specs {
+                gap: 10px;
+                margin-bottom: 10px;
+                flex-grow: 1;
+            }
+            }
+
+            .slider-spec {
+                padding-bottom: 6px;
+            }
+
+            .slider-spec-label {
+                font-size: 8px;
+                margin-bottom: 3px;
+            }
+
+            .slider-spec-value {
+                font-size: 11px;
+            }
+
+            .slider-price {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .slider-btn {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+
+        /* Адаптивность каталога */
         @media (max-width: 768px) {
             .cars-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -357,6 +805,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
     <!-- Основной контент -->
     <div class="main-container">
+        <!-- Слайдер -->
+        <div class="slider-section">
+            <div class="slider-container" id="sliderContainer">
+                <!-- Слайды будут добавлены через JavaScript -->
+            </div>
+            <button class="slider-nav slider-prev" onclick="prevSlide()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-nav slider-next" onclick="nextSlide()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="slider-controls" id="sliderDots"></div>
+        </div>
+
         <div class="catalog-title">
             <h2>Каталог автомобилей</h2>
             <p>Выберите интересующий вас автомобиль</p>
@@ -407,39 +869,41 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             }
 
             grid.innerHTML = cars.map(car => `
-                <div class="car-card">
-                    <img src="${car.photo_url || 'https://via.placeholder.com/280x200?text=No+Photo'}" 
-                         alt="${car.brand} ${car.model}" class="car-image" onerror="this.src='https://via.placeholder.com/280x200?text=No+Photo'">
-                    <div class="car-body">
-                        <div class="car-title">
-                            <span>${car.brand}</span> ${car.model}
-                        </div>
-                        <div class="car-year">${car.year} год</div>
-                        
-                        <div class="car-specs">
-                            <div class="spec">
-                                <div class="spec-label">Пробег</div>
-                                <div class="spec-value">${car.mileage.toLocaleString('ru-RU')} км</div>
+                <a href="car-detail.php?id=${car.id}" style="text-decoration: none; color: inherit;">
+                    <div class="car-card">
+                        <img src="${car.photo_url || 'https://via.placeholder.com/280x200?text=No+Photo'}" 
+                             alt="${car.brand} ${car.model}" class="car-image" onerror="this.src='https://via.placeholder.com/280x200?text=No+Photo'">
+                        <div class="car-body">
+                            <div class="car-title">
+                                <span>${car.brand}</span> ${car.model}
                             </div>
-                            <div class="spec">
-                                <div class="spec-label">КПП</div>
-                                <div class="spec-value">${car.gearbox}</div>
+                            <div class="car-year">${car.year} год</div>
+                            
+                            <div class="car-specs">
+                                <div class="spec">
+                                    <div class="spec-label">Пробег</div>
+                                    <div class="spec-value">${car.mileage.toLocaleString('ru-RU')} км</div>
+                                </div>
+                                <div class="spec">
+                                    <div class="spec-label">КПП</div>
+                                    <div class="spec-value">${car.gearbox}</div>
+                                </div>
+                                <div class="spec">
+                                    <div class="spec-label">Топливо</div>
+                                    <div class="spec-value">${car.fuel}</div>
+                                </div>
+                                <div class="spec">
+                                    <div class="spec-label">Популярность</div>
+                                    <div class="spec-value">${car.popularity}</div>
+                                </div>
                             </div>
-                            <div class="spec">
-                                <div class="spec-label">Топливо</div>
-                                <div class="spec-value">${car.fuel}</div>
-                            </div>
-                            <div class="spec">
-                                <div class="spec-label">Популярность</div>
-                                <div class="spec-value">${car.popularity}</div>
-                            </div>
-                        </div>
 
-                        <div class="car-price">
-                            <span>От</span> ${Math.floor(car.price).toLocaleString('ru-RU')} ₸
+                            <div class="car-price">
+                                <span>От</span> ${Math.floor(car.price).toLocaleString('ru-RU')} ₸
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             `).join('');
         }
 
@@ -476,6 +940,176 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
         // Загружаем машины при загрузке страницы
         loadCars(1);
+
+        // Слайдер управление
+        let sliderData = [];
+        let currentSlideIndex = 0;
+
+        // Функция для выбора случайных элементов из массива
+        function getRandomItems(arr, count) {
+            const shuffled = [...arr].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, Math.min(count, arr.length));
+        }
+
+        async function initSlider() {
+            try {
+                const response = await fetch(`../api/cars.php?page=1&limit=100`);
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    sliderData = getRandomItems(result.data, 5);
+                    renderSlider();
+                    autoSlide();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки слайдера:', error);
+            }
+        }
+
+        function renderSlider() {
+            const container = document.getElementById('sliderContainer');
+            const dotsContainer = document.getElementById('sliderDots');
+            
+            container.innerHTML = sliderData.map((car, idx) => `
+                <div class="slider-item ${idx === 0 ? 'active' : ''}">
+                    <img src="${car.photo_url}" alt="${car.brand} ${car.model}">
+                    <div class="slider-click-zones">
+                        <div class="slider-zone slider-zone-left" onclick="prevSlide()"></div>
+                        <div class="slider-zone slider-zone-right" onclick="nextSlide()"></div>
+                    </div>
+                    <div class="slider-content">
+                        <div class="slider-info">
+                            <h2>${car.brand}</h2>
+                            <div class="slider-model">${car.model}</div>
+                            <div class="slider-specs">
+                                <div class="slider-spec">
+                                    <div class="slider-spec-label">Год</div>
+                                    <div class="slider-spec-value">${car.year}</div>
+                                </div>
+                                <div class="slider-spec">
+                                    <div class="slider-spec-label">Пробег</div>
+                                    <div class="slider-spec-value">${(car.mileage / 1000).toFixed(0)}к км</div>
+                                </div>
+                                <div class="slider-spec">
+                                    <div class="slider-spec-label">Топливо</div>
+                                    <div class="slider-spec-value">${car.fuel}</div>
+                                </div>
+                                <div class="slider-spec">
+                                    <div class="slider-spec-label">КПП</div>
+                                    <div class="slider-spec-value">${car.gearbox}</div>
+                                </div>
+                            </div>
+                            <div class="slider-price">${Math.floor(car.price).toLocaleString('ru-RU')} ₸</div>
+                            <a href="car-detail.php?id=${car.id}" class="slider-btn">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            dotsContainer.innerHTML = sliderData.map((_, idx) => `
+                <div class="slider-dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></div>
+            `).join('');
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % sliderData.length;
+            updateSlider();
+        }
+
+        function prevSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + sliderData.length) % sliderData.length;
+            updateSlider();
+        }
+
+        function goToSlide(idx) {
+            currentSlideIndex = idx;
+            updateSlider();
+        }
+
+        function updateSlider() {
+            const items = document.querySelectorAll('.slider-item');
+            const dots = document.querySelectorAll('.slider-dot');
+
+            items.forEach((item, idx) => {
+                item.classList.remove('active');
+                if (idx === currentSlideIndex) {
+                    item.classList.add('active');
+                }
+            });
+
+            dots.forEach((dot, idx) => {
+                dot.classList.remove('active');
+                if (idx === currentSlideIndex) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        let autoSlideTimer;
+        function autoSlide() {
+            clearInterval(autoSlideTimer);
+            autoSlideTimer = setInterval(() => {
+                nextSlide();
+            }, 5000);
+        }
+
+        // Функционал свайпа/перетягивания мышкой
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+                autoSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                prevSlide();
+                autoSlide();
+            }
+        }
+
+        // Инициализиируем слайдер при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            initSlider();
+            
+            const sliderContainer = document.getElementById('sliderContainer');
+            
+            // Свайп для мобильных (touch)
+            sliderContainer.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, false);
+            
+            sliderContainer.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, false);
+            
+            // Перетягивание мышкой для десктопа
+            let isMouseDown = false;
+            sliderContainer.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                touchStartX = e.clientX;
+            });
+            
+            sliderContainer.addEventListener('mouseup', (e) => {
+                if (isMouseDown) {
+                    touchEndX = e.clientX;
+                    handleSwipe();
+                    isMouseDown = false;
+                }
+            });
+            
+            sliderContainer.addEventListener('mouseleave', () => {
+                isMouseDown = false;
+            });
+        });
+
+        // Перезагружаем таймер при взаимодействии с крошками
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('slider-dot')) {
+                autoSlide();
+            }
+        });
     </script>
 </body>
 </html>
