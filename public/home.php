@@ -7,6 +7,12 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Если роль admin, перенаправить на manager.php
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+    header('Location: manager.php');
+    exit;
+}
+
 // Обработка выхода
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     session_unset();
@@ -791,6 +797,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 <h1>Auto Dealership</h1>
             </div>
             <div class="header-right">
+                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'manager'): ?>
+                <a href="manager.php" class="logout-btn" style="background: #007bff; color: white;">
+                    <i class="fas fa-cog"></i>
+                    Панель менеджера
+                </a>
+                <?php endif; ?>
                 <div class="user-info">
                     <i class="fas fa-user-circle"></i>
                     <span class="user-name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>

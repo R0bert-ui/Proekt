@@ -21,6 +21,12 @@ for ($i = 0; $i < 10; $i++) {
 
     $userIds[] = $pdo->lastInsertId();
 }
+// Add admin
+$stmt = $pdo->prepare(
+    "INSERT INTO users (name, email, password, role, created_at)
+     VALUES (?, ?, ?, 'admin', NOW())"
+);
+$stmt->execute(['Admin', 'admin@example.com', password_hash('admin123', PASSWORD_BCRYPT)]);
 echo "✔ Пользователи созданы\n";
 echo "🚗 Создаем автомобили...\n";
 $brands = ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Kia', 'Hyundai', 'Lexus'];
@@ -40,8 +46,8 @@ for ($i = 0; $i < 15; $i++) {
 
     $stmt = $pdo->prepare(
         "INSERT INTO cars
-        (brand, model, year, price, mileage, gearbox, fuel, popularity, photo_url, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
+        (brand, model, year, price, mileage, gearbox, fuel, popularity, photo_url, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', NOW())"
     );
 
     $stmt->execute([

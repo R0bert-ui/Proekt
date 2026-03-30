@@ -5,14 +5,14 @@ class User {
     public $id;
     public $name;
     public $email;
-    public $password;
+    public $role;
     public $created_at;
     public function __construct($db) {
         $this->conn = $db;
     }
     public function create() {
         $sql = 'INSERT INTO ' . $this->table
-            . ' (name, email, password) VALUES (:name, :email, :password)';
+            . ' (name, email, password, role) VALUES (:name, :email, :password, :role)';
         $stmt = $this->conn->prepare($sql);
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->email = htmlspecialchars(strip_tags($this->email));
@@ -20,6 +20,7 @@ class User {
         $stmt->bindParam(':name', $this->name);
         $stmt->bindParam(':email', $this->email);
         $stmt->bindParam(':password', $this->password);
+        $stmt->bindParam(':role', $this->role);
         if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             return true;

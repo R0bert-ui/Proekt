@@ -11,7 +11,7 @@ class Car {
     public $gearbox;
     public $fuel;
     public $popularity;
-    public $photo_url;
+    public $status;
     public $created_at;
 
     public function __construct($db) {
@@ -19,8 +19,8 @@ class Car {
     }
     public function create() {
         $sql = 'INSERT INTO ' . $this->table
-            . ' (brand, model, year, price, mileage, gearbox, fuel, popularity, photo_url)'
-            . ' VALUES (:brand, :model, :year, :price, :mileage, :gearbox, :fuel, :popularity, :photo_url)';
+            . ' (brand, model, year, price, mileage, gearbox, fuel, popularity, photo_url, status)'
+            . ' VALUES (:brand, :model, :year, :price, :mileage, :gearbox, :fuel, :popularity, :photo_url, :status)';
         $stmt = $this->conn->prepare($sql);
         $this->brand = htmlspecialchars(strip_tags($this->brand));
         $this->model = htmlspecialchars(strip_tags($this->model));
@@ -33,6 +33,7 @@ class Car {
         $stmt->bindParam(':fuel', $this->fuel);
         $stmt->bindParam(':popularity', $this->popularity);
         $stmt->bindParam(':photo_url', $this->photo_url);
+        $stmt->bindParam(':status', $this->status);
         if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             return true;
@@ -61,6 +62,7 @@ class Car {
             $this->fuel = $row['fuel'];
             $this->popularity = $row['popularity'];
             $this->photo_url = $row['photo_url'];
+            $this->status = $row['status'];
             $this->created_at = $row['created_at'];
             return true;
         }
@@ -76,7 +78,8 @@ class Car {
             gearbox = :gearbox,
             fuel = :fuel,
             popularity = :popularity,
-            photo_url = :photo_url
+            photo_url = :photo_url,
+            status = :status
             WHERE id = :id';
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':brand', $this->brand);
@@ -88,6 +91,7 @@ class Car {
         $stmt->bindParam(':fuel', $this->fuel);
         $stmt->bindParam(':popularity', $this->popularity);
         $stmt->bindParam(':photo_url', $this->photo_url);
+        $stmt->bindParam(':status', $this->status);
         $stmt->bindParam(':id', $this->id);
         return $stmt->execute();
     }
@@ -96,5 +100,24 @@ class Car {
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
+    }
+    public function markSold($id) {
+        $sql = 'UPDATE ' . $this->table . ' SET status = \'sold\' WHERE id = :id';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+    public function getAvailable() {
+        $sql = 'SELECT * FROM ' . $this->table . ' WHERE status != \'sold\' ORDER BY created_at DESC';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt;
+    }
+    public function getCount() {
+        $sql = 'SELECT COUNT(*) as count FROM ' . $this->table;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'];
     }
 }

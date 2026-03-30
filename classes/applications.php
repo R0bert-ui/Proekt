@@ -42,4 +42,11 @@ class Application {
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
+    public function update() {
+        $sql = 'UPDATE ' . $this->table . ' SET status = :status WHERE id = :id';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':status', $this->status);
+        $stmt->bindParam(':id', $this->id);
+        return $stmt->execute();
+    }
 }
