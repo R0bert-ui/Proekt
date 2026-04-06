@@ -57,10 +57,16 @@ try {
             $filters['model'] = $_GET['model'];
         }
         if (!empty($_GET['price_min'])) {
-            $filters['price_min'] = $_GET['price_min'];
+            $price_min = (float)$_GET['price_min'];
+            if ($price_min >= 0) {
+                $filters['price_min'] = $price_min;
+            }
         }
         if (!empty($_GET['price_max'])) {
-            $filters['price_max'] = $_GET['price_max'];
+            $price_max = (float)$_GET['price_max'];
+            if ($price_max >= 0) {
+                $filters['price_max'] = $price_max;
+            }
         }
         if (!empty($_GET['year_min'])) {
             $filters['year_min'] = $_GET['year_min'];

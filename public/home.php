@@ -1066,11 +1066,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 <div class="filter-group filter-row">
                     <div>
                         <label>Цена от</label>
-                        <input type="number" id="priceMinFilter" placeholder="2000000">
+                        <input type="number" id="priceMinFilter" placeholder="2000000" min="0">
                     </div>
                     <div>
                         <label>Цена до</label>
-                        <input type="number" id="priceMaxFilter" placeholder="50000000">
+                        <input type="number" id="priceMaxFilter" placeholder="50000000" min="0">
                     </div>
                 </div>
 
@@ -1212,6 +1212,28 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
         function applyFilters() {
             const filters = getFilterValues();
+            
+            // Валидация цены
+            const priceMin = filters.price_min ? parseFloat(filters.price_min) : null;
+            const priceMax = filters.price_max ? parseFloat(filters.price_max) : null;
+            
+            if (priceMin !== null && priceMin < 0) {
+                alert('Цена не может быть отрицательной');
+                document.getElementById('priceMinFilter').value = '';
+                return;
+            }
+            
+            if (priceMax !== null && priceMax < 0) {
+                alert('Цена не может быть отрицательной');
+                document.getElementById('priceMaxFilter').value = '';
+                return;
+            }
+            
+            if (priceMin !== null && priceMax !== null && priceMin > priceMax) {
+                alert('Цена "от" не может быть больше цены "до"');
+                return;
+            }
+            
             loadCars(1, filters);
         }
 
