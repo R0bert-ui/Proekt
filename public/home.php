@@ -787,6 +787,190 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 font-size: 22px;
             }
         }
+
+        /* Фильтры */
+        .filters-section {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 36px;
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filters-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c2c2c;
+        }
+
+        .filters-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .filters-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #2c2c2c;
+            background: #fff;
+            font-family: inherit;
+        }
+
+        .filter-group input::placeholder {
+            color: #bbb;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #2c2c2c;
+            box-shadow: 0 0 0 2px rgba(44, 44, 44, 0.1);
+        }
+
+        .filter-row {
+            display: contents;
+        }
+
+        .filter-row > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-row > div label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-row > div input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #2c2c2c;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            grid-column: 1 / -1;
+            margin-top: 12px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid #d0d0d0;
+            background: #fff;
+            color: #2c2c2c;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+
+        .filter-btn-search {
+            padding: 10px 24px;
+            background: #2c2c2c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn-search:hover {
+            background: #1a1a1a;
+        }
+
+        @media (max-width: 1200px) {
+            .filters-content {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters-section {
+                padding: 16px;
+                margin-bottom: 24px;
+            }
+
+            .filters-toggle {
+                display: block;
+            }
+
+            .filters-content {
+                display: none;
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 16px;
+            }
+
+            .filters-content.active {
+                display: grid;
+            }
+
+            .filters-header {
+                margin-bottom: 0;
+            }
+
+            .filter-actions {
+                margin-top: 16px;
+                flex-wrap: wrap;
+            }
+
+            .filter-btn-search,
+            .filter-btn {
+                flex: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -836,6 +1020,87 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             <p>Выберите интересующий вас автомобиль</p>
         </div>
 
+        <!-- Фильтры -->
+        <div class="filters-section">
+            <div class="filters-header">
+                <h3>Фильтры</h3>
+                <button class="filters-toggle" id="filtersToggle">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="filters-content" id="filtersContent">
+                <div class="filter-group">
+                    <label>Марка</label>
+                    <select id="brandFilter">
+                        <option value="">Все марки</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>КПП</label>
+                    <select id="gearboxFilter">
+                        <option value="">Все типы</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Топливо</label>
+                    <select id="fuelFilter">
+                        <option value="">Все типы</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Сортировка</label>
+                    <select id="sortFilter">
+                        <option value="">По новизне</option>
+                        <option value="price_asc">Цена (возрастающая)</option>
+                        <option value="price_desc">Цена (убывающая)</option>
+                        <option value="year_desc">Год (новее)</option>
+                        <option value="year_asc">Год (старше)</option>
+                        <option value="mileage_asc">Пробег (меньше)</option>
+                        <option value="popularity_desc">Популярность</option>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-row">
+                    <div>
+                        <label>Цена от</label>
+                        <input type="number" id="priceMinFilter" placeholder="2000000">
+                    </div>
+                    <div>
+                        <label>Цена до</label>
+                        <input type="number" id="priceMaxFilter" placeholder="50000000">
+                    </div>
+                </div>
+
+                <div class="filter-group filter-row">
+                    <div>
+                        <label>Год от</label>
+                        <input type="number" id="yearMinFilter" placeholder="1900" min="1900">
+                    </div>
+                    <div>
+                        <label>Год до</label>
+                        <input type="number" id="yearMaxFilter" placeholder="2026" max="2026">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Макс. пробег</label>
+                    <input type="number" id="mileageMaxFilter" placeholder="500000">
+                </div>
+
+                <div class="filter-actions">
+                    <button class="filter-btn-search" onclick="applyFilters()">
+                        <i class="fas fa-search"></i> Поиск
+                    </button>
+                    <button class="filter-btn" onclick="resetFilters()">
+                        <i class="fas fa-redo"></i> Сброс
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Сетка машин -->
         <div class="cars-grid" id="carsGrid">
             <div class="loading">
@@ -851,20 +1116,41 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     <script>
         let currentPage = 1;
         const itemsPerPage = 9;
+        let filterOptions = { brands: [], gearboxes: [], fuels: [] };
 
-        async function loadCars(page = 1) {
+        async function loadCars(page = 1, filters = {}) {
             try {
-                const response = await fetch(`../api/cars.php?page=${page}&limit=${itemsPerPage}`);
+                let url = `../api/cars.php?page=${page}&limit=${itemsPerPage}`;
+                
+                // Добавляем параметры фильтров
+                if (filters.search) url += `&search=${encodeURIComponent(filters.search)}`;
+                if (filters.brand) url += `&brand=${encodeURIComponent(filters.brand)}`;
+                if (filters.model) url += `&model=${encodeURIComponent(filters.model)}`;
+                if (filters.price_min) url += `&price_min=${filters.price_min}`;
+                if (filters.price_max) url += `&price_max=${filters.price_max}`;
+                if (filters.year_min) url += `&year_min=${filters.year_min}`;
+                if (filters.year_max) url += `&year_max=${filters.year_max}`;
+                if (filters.mileage_max) url += `&mileage_max=${filters.mileage_max}`;
+                if (filters.gearbox) url += `&gearbox=${encodeURIComponent(filters.gearbox)}`;
+                if (filters.fuel) url += `&fuel=${encodeURIComponent(filters.fuel)}`;
+                if (filters.sort) url += `&sort=${encodeURIComponent(filters.sort)}`;
+
+                const response = await fetch(url);
                 const result = await response.json();
 
                 if (!result.success) {
                     throw new Error(result.error || 'Ошибка при загрузке данных');
                 }
 
+                // Сохраняем опции фильтров
+                if (result.filters) {
+                    filterOptions = result.filters;
+                    populateFilterOptions();
+                }
+
                 displayCars(result.data);
-                displayPagination(result.pagination);
+                displayPagination(result.pagination, filters);
                 currentPage = page;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (error) {
                 console.error('Ошибка:', error);
                 document.getElementById('carsGrid').innerHTML = 
@@ -872,11 +1158,132 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             }
         }
 
+        function populateFilterOptions() {
+            // Очищаем и заполняем марки
+            const brandSelect = document.getElementById('brandFilter');
+            const currentBrandValue = brandSelect.value;
+            brandSelect.innerHTML = '<option value="">Все марки</option>';
+            filterOptions.brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            });
+            brandSelect.value = currentBrandValue;
+
+            // Очищаем и заполняем КПП
+            const gearboxSelect = document.getElementById('gearboxFilter');
+            const currentGearboxValue = gearboxSelect.value;
+            gearboxSelect.innerHTML = '<option value="">Все типы</option>';
+            filterOptions.gearboxes.forEach(gearbox => {
+                const option = document.createElement('option');
+                option.value = gearbox;
+                option.textContent = gearbox;
+                gearboxSelect.appendChild(option);
+            });
+            gearboxSelect.value = currentGearboxValue;
+
+            // Очищаем и заполняем Топливо
+            const fuelSelect = document.getElementById('fuelFilter');
+            const currentFuelValue = fuelSelect.value;
+            fuelSelect.innerHTML = '<option value="">Все типы</option>';
+            filterOptions.fuels.forEach(fuel => {
+                const option = document.createElement('option');
+                option.value = fuel;
+                option.textContent = fuel;
+                fuelSelect.appendChild(option);
+            });
+            fuelSelect.value = currentFuelValue;
+        }
+
+        function getFilterValues() {
+            return {
+                brand: document.getElementById('brandFilter').value,
+                price_min: document.getElementById('priceMinFilter').value,
+                price_max: document.getElementById('priceMaxFilter').value,
+                year_min: document.getElementById('yearMinFilter').value,
+                year_max: document.getElementById('yearMaxFilter').value,
+                mileage_max: document.getElementById('mileageMaxFilter').value,
+                gearbox: document.getElementById('gearboxFilter').value,
+                fuel: document.getElementById('fuelFilter').value,
+                sort: document.getElementById('sortFilter').value
+            };
+        }
+
+        function applyFilters() {
+            const filters = getFilterValues();
+            loadCars(1, filters);
+        }
+
+        function resetFilters() {
+            document.getElementById('brandFilter').value = '';
+            document.getElementById('priceMinFilter').value = '';
+            document.getElementById('priceMaxFilter').value = '';
+            document.getElementById('yearMinFilter').value = '';
+            document.getElementById('yearMaxFilter').value = '';
+            document.getElementById('mileageMaxFilter').value = '';
+            document.getElementById('gearboxFilter').value = '';
+            document.getElementById('fuelFilter').value = '';
+            document.getElementById('sortFilter').value = '';
+            loadCars(1, {});
+        }
+
+        // Клик на кнопку toggle фильтров (мобильная версия)
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('filtersToggle');
+            const filtersContent = document.getElementById('filtersContent');
+            
+            toggleBtn.addEventListener('click', () => {
+                filtersContent.classList.toggle('active');
+                toggleBtn.querySelector('i').classList.toggle('fa-chevron-down');
+                toggleBtn.querySelector('i').classList.toggle('fa-chevron-up');
+            });
+
+            // Загружаем машины при загрузке страницы
+            loadCars(1);
+
+            // Инициализируем слайдер
+            initSlider();
+            
+            const sliderContainer = document.getElementById('sliderContainer');
+            
+            // Свайп для мобильных (touch)
+            if (sliderContainer) {
+                sliderContainer.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, false);
+                
+                sliderContainer.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, false);
+                
+                // Перетягивание мышкой для десктопа
+                let isMouseDown = false;
+                sliderContainer.addEventListener('mousedown', (e) => {
+                    isMouseDown = true;
+                    touchStartX = e.clientX;
+                });
+                
+                sliderContainer.addEventListener('mouseup', (e) => {
+                    if (isMouseDown) {
+                        touchEndX = e.clientX;
+                        handleSwipe();
+                        isMouseDown = false;
+                    }
+                });
+                
+                sliderContainer.addEventListener('mouseleave', () => {
+                    isMouseDown = false;
+                });
+            }
+        });
+
         function displayCars(cars) {
             const grid = document.getElementById('carsGrid');
             
             if (cars.length === 0) {
-                grid.innerHTML = '<div class="error-message">Автомобили не найдены</div>';
+                grid.innerHTML = '<div class="error-message">Автомобили не найданы</div>';
                 return;
             }
 
@@ -919,7 +1326,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             `).join('');
         }
 
-        function displayPagination(pagination) {
+        function displayPagination(pagination, filters = {}) {
             const paginationDiv = document.getElementById('pagination');
             const { current_page, total_pages } = pagination;
 
@@ -927,7 +1334,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
             // Кнопка "Предыдущая"
             if (current_page > 1) {
-                html += `<button onclick="loadCars(${current_page - 1})">← Предыдущая</button>`;
+                html += `<button onclick="loadCars(${current_page - 1}, ${JSON.stringify(filters).replace(/"/g, '&quot;')})">← Предыдущая</button>`;
             }
 
             // Номера страниц
@@ -936,7 +1343,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                     html += `<a class="active">${i}</a>`;
                 } else if (i === 1 || i === total_pages || 
                            (i >= current_page - 1 && i <= current_page + 1)) {
-                    html += `<a onclick="loadCars(${i})">${i}</a>`;
+                    html += `<a onclick="loadCars(${i}, ${JSON.stringify(filters).replace(/"/g, '&quot;')})">${i}</a>`;
                 } else if (i === current_page - 2 || i === current_page + 2) {
                     html += `<span>...</span>`;
                 }
@@ -944,7 +1351,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
             // Кнопка "Следующая"
             if (current_page < total_pages) {
-                html += `<button onclick="loadCars(${current_page + 1})">Следующая →</button>`;
+                html += `<button onclick="loadCars(${current_page + 1}, ${JSON.stringify(filters).replace(/"/g, '&quot;')})">Следующая →</button>`;
             }
 
             paginationDiv.innerHTML = html;
@@ -1079,42 +1486,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 autoSlide();
             }
         }
-
-        // Инициализиируем слайдер при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            initSlider();
-            
-            const sliderContainer = document.getElementById('sliderContainer');
-            
-            // Свайп для мобильных (touch)
-            sliderContainer.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, false);
-            
-            sliderContainer.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, false);
-            
-            // Перетягивание мышкой для десктопа
-            let isMouseDown = false;
-            sliderContainer.addEventListener('mousedown', (e) => {
-                isMouseDown = true;
-                touchStartX = e.clientX;
-            });
-            
-            sliderContainer.addEventListener('mouseup', (e) => {
-                if (isMouseDown) {
-                    touchEndX = e.clientX;
-                    handleSwipe();
-                    isMouseDown = false;
-                }
-            });
-            
-            sliderContainer.addEventListener('mouseleave', () => {
-                isMouseDown = false;
-            });
-        });
 
         // Перезагружаем таймер при взаимодействии с крошками
         document.addEventListener('click', function(event) {

@@ -29,20 +29,24 @@ $stmt = $pdo->prepare(
 $stmt->execute(['Admin', 'admin@example.com', password_hash('admin123', PASSWORD_BCRYPT)]);
 echo "✔ Пользователи созданы\n";
 echo "🚗 Создаем автомобили...\n";
-$brands = ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Kia', 'Hyundai', 'Lexus'];
-$models = ['Camry', 'X5', 'E-Class', 'A6', 'Sportage', 'Elantra', 'RX'];
+$brands = ['Toyota', 'BMW', 'Mercedes-Benz', 'Audi', 'Kia', 'Hyundai', 'Lexus', 'Volkswagen', 'Ford', 'Honda', 
+           'Mazda', 'Nissan', 'Volvo', 'Subaru', 'Porsche', 'Tesla', 'Chevrolet', 'Jeep', 'Range Rover', 'Jaguar'];
+
+$models = ['Camry', 'X5', 'E-Class', 'A6', 'Sportage', 'Elantra', 'RX', 'Passat', 'Focus', 'Civic',
+           'CX-5', 'Qashqai', 'XC60', 'Outback', '911', 'Model 3', 'Cruze', 'Wrangler', 'Discovery', 'XF'];
+
 $carIds = [];
-for ($i = 0; $i < 15; $i++) {
+for ($i = 0; $i < 120; $i++) {
 
     $brand = $brands[array_rand($brands)];
     $model = $models[array_rand($models)];
-    $year  = rand(2015, 2023);
-    $price = rand(800000, 6000000);
-    $mileage = rand(10000, 150000);
-    $gearbox = ['Automatic', 'Manual'][rand(0,1)];
-    $fuel = ['Petrol', 'Diesel', 'Hybrid'][rand(0,2)];
-    $popularity = rand(0, 100);
-    $photo = "https://picsum.photos/seed/" . rand(1,1000) . "/600/400";
+    $year  = rand(2015, 2026);
+    $price = rand(2000000, 80000000);
+    $mileage = rand(5000, 250000);
+    $gearbox = ['Автомат', 'Механика'][rand(0,1)];
+    $fuel = ['Бензин', 'Дизель', 'Гибрид'][rand(0,2)];
+    $popularity = rand(10, 100);
+    $photo = "https://picsum.photos/seed/" . rand(1,5000) . "/600/400";
 
     $stmt = $pdo->prepare(
         "INSERT INTO cars

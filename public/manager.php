@@ -38,33 +38,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $car->popularity = $_POST['popularity'];
             $car->status = 'available';
 
-            // Photo validation
-            if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                if (in_array($_FILES['photo']['type'], $allowedTypes) && $_FILES['photo']['size'] <= 5 * 1024 * 1024) { // 5MB
-                    $uploadDir = '../uploads/';
-                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-                    $fileName = uniqid() . '_' . basename($_FILES['photo']['name']);
-                    $filePath = $uploadDir . $fileName;
-                    if (move_uploaded_file($_FILES['photo']['tmp_name'], $filePath)) {
-                        $car->photo_url = '/uploads/' . $fileName;
-                    } else {
-                        $error = 'Ошибка загрузки фото.';
-                    }
-                } else {
-                    $error = 'Неверный тип файла или размер превышает 5MB.';
-                }
-            }
-
-            if (!isset($error) && $car->create()) {
-                // Log
-                $log->user_id = $_SESSION['user_id'];
-                $log->action = 'add_car';
-                $log->details = "Added car: {$car->brand} {$car->model}";
-                $log->create();
-                $success = 'Автомобиль добавлен.';
+            // Валидация данных
+            $validationErrors = $car->validateCarData();
+            if (!empty($validationErrors)) {
+                $error = 'Ошибки валидации: ' . implode('; ', $validationErrors);
             } else {
-                $error = $error ?? 'Ошибка добавления автомобиля.';
+                // Photo validation
+                if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (in_array($_FILES['photo']['type'], $allowedTypes) && $_FILES['photo']['size'] <= 5 * 1024 * 1024) { // 5MB
+                        $uploadDir = '../uploads/';
+                        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+                        $fileName = uniqid() . '_' . basename($_FILES['photo']['name']);
+                        $filePath = $uploadDir . $fileName;
+                        if (move_uploaded_file($_FILES['photo']['tmp_name'], $filePath)) {
+                            $car->photo_url = '/uploads/' . $fileName;
+                        } else {
+                            $error = 'Ошибка загрузки фото.';
+                        }
+                    } else {
+                        $error = 'Неверный тип файла или размер превышает 5MB.';
+                    }
+                }
+
+                if (!isset($error) && $car->create()) {
+                    // Log
+                    $log->user_id = $_SESSION['user_id'];
+                    $log->action = 'add_car';
+                    $log->details = "Added car: {$car->brand} {$car->model}";
+                    $log->create();
+                    $success = 'Автомобиль добавлен.';
+                } else {
+                    $error = $error ?? 'Ошибка добавления автомобиля.';
+                }
             }
         }
     } elseif (isset($_POST['edit_car'])) {
@@ -78,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $car->fuel = $_POST['fuel'];
         $car->popularity = $_POST['popularity'];
         $car->status = $_POST['status'];
-        if ($car->update()) {
+
+        // Валидация данных
+        $validationErrors = $car->validateCarData();
+        if (!empty($validationErrors)) {
+            $error = 'Ошибки валидации: ' . implode('; ', $validationErrors);
+        } elseif ($car->update()) {
             $log->user_id = $_SESSION['user_id'];
             $log->action = 'edit_car';
             $log->details = "Edited car ID: {$car->id}";
@@ -442,35 +453,35 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
             <form method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Марка</label>
-                    <input type="text" name="brand" required>
+                    <input type="text" name="brand" required minlength="2" maxlength="100" placeholder="Например: Toyota">
                 </div>
                 <div class="form-group">
                     <label>Модель</label>
-                    <input type="text" name="model" required>
+                    <input type="text" name="model" required minlength="2" maxlength="100" placeholder="Например: Camry">
                 </div>
                 <div class="form-group">
                     <label>Год</label>
-                    <input type="number" name="year" required>
+                    <input type="number" name="year" required min="1900" max="2100" placeholder="2024">
                 </div>
                 <div class="form-group">
                     <label>Цена (₸)</label>
-                    <input type="number" name="price" required>
+                    <input type="number" name="price" required min="1" step="0.01" placeholder="1000000">
                 </div>
                 <div class="form-group">
                     <label>Пробег</label>
-                    <input type="number" name="mileage" required>
+                    <input type="number" name="mileage" required min="0" placeholder="0">
                 </div>
                 <div class="form-group">
                     <label>КПП</label>
-                    <input type="text" name="gearbox" required>
+                    <input type="text" name="gearbox" required placeholder="Например: АКПП">
                 </div>
                 <div class="form-group">
                     <label>Топливо</label>
-                    <input type="text" name="fuel" required>
+                    <input type="text" name="fuel" required placeholder="Например: Бензин">
                 </div>
                 <div class="form-group">
                     <label>Популярность</label>
-                    <input type="number" name="popularity" required>
+                    <input type="number" name="popularity" required min="0" value="0" placeholder="0">
                 </div>
                 <div class="form-group">
                     <label>Фото</label>
@@ -501,7 +512,7 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                     <td><?php echo $row['year']; ?></td>
                     <td><?php echo number_format($row['price'], 0, ',', ' '); ?> ₸</td>
                     <td><?php echo number_format($row['mileage'], 0, ',', ' '); ?> км</td>
-                    <td><?php echo $row['status']; ?></td>
+                    <td><?php echo ($row['status'] == 'available' ? 'Доступен' : 'Продан'); ?></td>
                     <td class="action-btns">
                         <button class="btn" onclick="editCar(<?php echo $row['id']; ?>)">Редактировать</button>
                         <form method="post" style="display:inline;">
@@ -535,14 +546,21 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                     <td><?php echo $row['car_id']; ?></td>
                     <td><?php echo $row['full_name']; ?></td>
                     <td><?php echo $row['phone']; ?></td>
-                    <td><?php echo $row['status']; ?></td>
+                    <td><?php 
+                        $statusTexts = [
+                            'new' => 'Новая',
+                            'approved' => 'Одобрена',
+                            'rejected' => 'Отклонена'
+                        ];
+                        echo $statusTexts[$row['status']] ?? $row['status'];
+                    ?></td>
                     <td>
                         <form method="post" style="display:inline;">
                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                             <select name="status">
-                                <option value="new" <?php if ($row['status'] == 'new') echo 'selected'; ?>>Новый</option>
-                                <option value="approved" <?php if ($row['status'] == 'approved') echo 'selected'; ?>>Одобрен</option>
-                                <option value="rejected" <?php if ($row['status'] == 'rejected') echo 'selected'; ?>>Отклонен</option>
+                                <option value="new" <?php if ($row['status'] == 'new') echo 'selected'; ?>>Новая</option>
+                                <option value="approved" <?php if ($row['status'] == 'approved') echo 'selected'; ?>>Одобрена</option>
+                                <option value="rejected" <?php if ($row['status'] == 'rejected') echo 'selected'; ?>>Отклонена</option>
                             </select>
                             <button type="submit" name="update_application" class="btn">Обновить</button>
                         </form>
@@ -562,23 +580,23 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                 <input type="hidden" name="id" id="edit_id">
                 <div class="form-group">
                     <label>Марка</label>
-                    <input type="text" name="brand" id="edit_brand" required>
+                    <input type="text" name="brand" id="edit_brand" required minlength="2" maxlength="100">
                 </div>
                 <div class="form-group">
                     <label>Модель</label>
-                    <input type="text" name="model" id="edit_model" required>
+                    <input type="text" name="model" id="edit_model" required minlength="2" maxlength="100">
                 </div>
                 <div class="form-group">
                     <label>Год</label>
-                    <input type="number" name="year" id="edit_year" required>
+                    <input type="number" name="year" id="edit_year" required min="1900" max="2100">
                 </div>
                 <div class="form-group">
                     <label>Цена (₸)</label>
-                    <input type="number" name="price" id="edit_price" required>
+                    <input type="number" name="price" id="edit_price" required min="1" step="0.01">
                 </div>
                 <div class="form-group">
                     <label>Пробег</label>
-                    <input type="number" name="mileage" id="edit_mileage" required>
+                    <input type="number" name="mileage" id="edit_mileage" required min="0">
                 </div>
                 <div class="form-group">
                     <label>КПП</label>
@@ -590,7 +608,7 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                 </div>
                 <div class="form-group">
                     <label>Популярность</label>
-                    <input type="number" name="popularity" id="edit_popularity" required>
+                    <input type="number" name="popularity" id="edit_popularity" required min="0">
                 </div>
                 <div class="form-group">
                     <label>Статус</label>
@@ -605,16 +623,72 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
     </div>
 
     <script>
+        // Валидация формы на клиенте
+        function validateCarForm(formElement) {
+            const errors = [];
+            
+            const brand = formElement.querySelector('[name="brand"]').value.trim();
+            const model = formElement.querySelector('[name="model"]').value.trim();
+            const year = parseInt(formElement.querySelector('[name="year"]').value);
+            const price = parseFloat(formElement.querySelector('[name="price"]').value);
+            const mileage = parseInt(formElement.querySelector('[name="mileage"]').value);
+            const gearbox = formElement.querySelector('[name="gearbox"]').value.trim();
+            const fuel = formElement.querySelector('[name="fuel"]').value.trim();
+            const popularity = parseInt(formElement.querySelector('[name="popularity"]').value);
+
+            if (!brand || brand.length < 2) {
+                errors.push('Марка должна содержать минимум 2 символа');
+            }
+
+            if (!model || model.length < 2) {
+                errors.push('Модель должна содержать минимум 2 символа');
+            }
+
+            if (!year || year < 1900 || year > new Date().getFullYear() + 1) {
+                errors.push('Год должен быть от 1900 до ' + (new Date().getFullYear() + 1));
+            }
+
+            if (!price || price <= 0) {
+                errors.push('Цена должна быть больше 0');
+            }
+
+            if (mileage < 0) {
+                errors.push('Пробег не может быть отрицательным');
+            }
+
+            if (!gearbox) {
+                errors.push('КПП обязательна');
+            }
+
+            if (!fuel) {
+                errors.push('Тип топлива обязателен');
+            }
+
+            if (popularity < 0) {
+                errors.push('Популярность не может быть отрицательной');
+            }
+
+            if (errors.length > 0) {
+                alert(errors.join('\n'));
+                return false;
+            }
+
+            return true;
+        }
+
         function editCar(id) {
-            // Fetch car data via AJAX or use PHP to populate
-            // For simplicity, redirect to edit page or use modal with data
-            // Since no AJAX, let's assume we need to fetch data
-            // For now, open modal and load data
-            fetch('api/cars.php?id=' + id)
-                .then(response => response.json())
+            fetch('../api/cars.php?id=' + id)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error, status: ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.length > 0) {
-                        const car = data[0];
+                    console.log('API Response:', data);
+                    if (data.success && data.data) {
+                        const car = data.data;
+                        console.log('Car data:', car);
                         document.getElementById('edit_id').value = car.id;
                         document.getElementById('edit_brand').value = car.brand;
                         document.getElementById('edit_model').value = car.model;
@@ -626,7 +700,14 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                         document.getElementById('edit_popularity').value = car.popularity;
                         document.getElementById('edit_status').value = car.status;
                         document.getElementById('editModal').style.display = 'block';
+                    } else {
+                        console.error('Invalid response format:', data);
+                        alert('Ошибка загрузки данных автомобиля. Проверьте консоль (F12)');
                     }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Ошибка при загрузке данных: ' + error.message);
                 });
         }
 
@@ -639,6 +720,28 @@ $stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE statu
                 closeModal();
             }
         }
+
+        // Добавляем валидацию на отправку форм
+        document.addEventListener('DOMContentLoaded', function() {
+            const addCarForm = document.querySelector('form [name="add_car"]');
+            const editCarForm = document.querySelector('form [name="edit_car"]');
+            
+            if (addCarForm) {
+                addCarForm.closest('form').addEventListener('submit', function(e) {
+                    if (!validateCarForm(this)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            if (editCarForm) {
+                editCarForm.closest('form').addEventListener('submit', function(e) {
+                    if (!validateCarForm(this)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

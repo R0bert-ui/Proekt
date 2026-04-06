@@ -120,4 +120,177 @@ class Car {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['count'];
     }
+
+    public function searchWithFilters($filters = []) {
+        $sql = 'SELECT * FROM ' . $this->table . ' WHERE status != \'sold\'';
+        $params = [];
+        
+        // Поиск по марке и модели
+        if (!empty($filters['search'])) {
+            $search = '%' . $filters['search'] . '%';
+            $sql .= ' AND (brand LIKE :search OR model LIKE :search)';
+            $params['search'] = $search;
+        }
+        
+        // Фильтр по марке
+        if (!empty($filters['brand'])) {
+            $sql .= ' AND brand = :brand';
+            $params['brand'] = $filters['brand'];
+        }
+        
+        // Фильтр по модели
+        if (!empty($filters['model'])) {
+            $sql .= ' AND model = :model';
+            $params['model'] = $filters['model'];
+        }
+        
+        // Фильтр по цене
+        if (!empty($filters['price_min'])) {
+            $sql .= ' AND price >= :price_min';
+            $params['price_min'] = (float)$filters['price_min'];
+        }
+        if (!empty($filters['price_max'])) {
+            $sql .= ' AND price <= :price_max';
+            $params['price_max'] = (float)$filters['price_max'];
+        }
+        
+        // Фильтр по году
+        if (!empty($filters['year_min'])) {
+            $sql .= ' AND year >= :year_min';
+            $params['year_min'] = (int)$filters['year_min'];
+        }
+        if (!empty($filters['year_max'])) {
+            $sql .= ' AND year <= :year_max';
+            $params['year_max'] = (int)$filters['year_max'];
+        }
+        
+        // Фильтр по пробегу
+        if (!empty($filters['mileage_max'])) {
+            $sql .= ' AND mileage <= :mileage_max';
+            $params['mileage_max'] = (int)$filters['mileage_max'];
+        }
+        
+        // Фильтр по КПП
+        if (!empty($filters['gearbox'])) {
+            $sql .= ' AND gearbox = :gearbox';
+            $params['gearbox'] = $filters['gearbox'];
+        }
+        
+        // Фильтр по топливу
+        if (!empty($filters['fuel'])) {
+            $sql .= ' AND fuel = :fuel';
+            $params['fuel'] = $filters['fuel'];
+        }
+        
+        // Сортировка
+        if (!empty($filters['sort'])) {
+            switch($filters['sort']) {
+                case 'price_asc':
+                    $sql .= ' ORDER BY price ASC';
+                    break;
+                case 'price_desc':
+                    $sql .= ' ORDER BY price DESC';
+                    break;
+                case 'year_asc':
+                    $sql .= ' ORDER BY year ASC';
+                    break;
+                case 'year_desc':
+                    $sql .= ' ORDER BY year DESC';
+                    break;
+                case 'mileage_asc':
+                    $sql .= ' ORDER BY mileage ASC';
+                    break;
+                case 'popularity_desc':
+                    $sql .= ' ORDER BY popularity DESC';
+                    break;
+                default:
+                    $sql .= ' ORDER BY created_at DESC';
+            }
+        } else {
+            $sql .= ' ORDER BY created_at DESC';
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        // Правильно передаем параметры - без : в ключах
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public function getBrands() {
+        $sql = 'SELECT DISTINCT brand FROM ' . $this->table . ' WHERE status != \'sold\' ORDER BY brand ASC';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getGearboxes() {
+        $sql = 'SELECT DISTINCT gearbox FROM ' . $this->table . ' WHERE status != \'sold\' ORDER BY gearbox ASC';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getFuels() {
+        $sql = 'SELECT DISTINCT fuel FROM ' . $this->table . ' WHERE status != \'sold\' ORDER BY fuel ASC';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function validateCarData() {
+        $errors = [];
+
+        // Валидация марки
+        if (empty($this->brand) || trim($this->brand) === '') {
+            $errors[] = 'Марка обязательна';
+        } elseif (strlen($this->brand) < 2 || strlen($this->brand) > 100) {
+            $errors[] = 'Марка должна быть от 2 до 100 символов';
+        }
+
+        // Валидация модели
+        if (empty($this->model) || trim($this->model) === '') {
+            $errors[] = 'Модель обязательна';
+        } elseif (strlen($this->model) < 2 || strlen($this->model) > 100) {
+            $errors[] = 'Модель должна быть от 2 до 100 символов';
+        }
+
+        // Валидация года
+        $year = (int)$this->year;
+        if (!is_numeric($this->year) || $year < 1900 || $year > date('Y') + 1) {
+            $errors[] = 'Год должен быть от 1900 до ' . (date('Y') + 1);
+        }
+
+        // Валидация цены
+        $price = floatval($this->price);
+        if (!is_numeric($this->price) || $price <= 0) {
+            $errors[] = 'Цена должна быть больше 0';
+        }
+
+        // Валидация пробега
+        $mileage = (int)$this->mileage;
+        if (!is_numeric($this->mileage) || $mileage < 0) {
+            $errors[] = 'Пробег не может быть отрицательным';
+        }
+
+        // Валидация КПП
+        if (empty($this->gearbox) || trim($this->gearbox) === '') {
+            $errors[] = 'КПП обязательна';
+        }
+
+        // Валидация топлива
+        if (empty($this->fuel) || trim($this->fuel) === '') {
+            $errors[] = 'Тип топлива обязателен';
+        }
+
+        // Валидация популярности
+        $popularity = (int)$this->popularity;
+        if (!is_numeric($this->popularity) || $popularity < 0) {
+            $errors[] = 'Популярность не может быть отрицательной';
+        }
+
+        return $errors;
+    }
 }
