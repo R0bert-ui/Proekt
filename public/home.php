@@ -1234,6 +1234,27 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 return;
             }
             
+            // Валидация года
+            const yearMin = filters.year_min ? parseInt(filters.year_min) : null;
+            const yearMax = filters.year_max ? parseInt(filters.year_max) : null;
+            
+            if (yearMin !== null && yearMin < 1900) {
+                alert('Год не может быть раньше 1900');
+                document.getElementById('yearMinFilter').value = '';
+                return;
+            }
+            
+            if (yearMax !== null && yearMax > 2100) {
+                alert('Год не может быть позже 2100');
+                document.getElementById('yearMaxFilter').value = '';
+                return;
+            }
+            
+            if (yearMin !== null && yearMax !== null && yearMin > yearMax) {
+                alert('Год "от" не может быть больше чем год "до"');
+                return;
+            }
+            
             loadCars(1, filters);
         }
 

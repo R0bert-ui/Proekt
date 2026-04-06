@@ -69,10 +69,26 @@ try {
             }
         }
         if (!empty($_GET['year_min'])) {
-            $filters['year_min'] = $_GET['year_min'];
+            $year_min = (int)$_GET['year_min'];
+            if ($year_min >= 1900) {
+                $filters['year_min'] = $year_min;
+            }
         }
         if (!empty($_GET['year_max'])) {
-            $filters['year_max'] = $_GET['year_max'];
+            $year_max = (int)$_GET['year_max'];
+            if ($year_max <= 2100) {
+                $filters['year_max'] = $year_max;
+            }
+        }
+        
+        // Проверка логики диапазона годов
+        if (!empty($filters['year_min']) && !empty($filters['year_max'])) {
+            if ($filters['year_min'] > $filters['year_max']) {
+                // Меняем значения местами для исправления
+                $temp = $filters['year_min'];
+                $filters['year_min'] = $filters['year_max'];
+                $filters['year_max'] = $temp;
+            }
         }
         if (!empty($_GET['mileage_max'])) {
             $filters['mileage_max'] = $_GET['mileage_max'];
