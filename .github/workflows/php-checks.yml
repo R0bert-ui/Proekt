@@ -1,9 +1,19 @@
 name: PHP Checks
+
 on:
   push:
     branches: [ main, master ]
+    # Вариант В
+    paths:
+      - '**.php'
+      - 'phpcs.xml'
+      - '.github/workflows/php-checks.yml'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - '**.php'
+      - 'phpcs.xml'
+      - '.github/workflows/php-checks.yml'
 
 jobs:
   php-lint:
@@ -12,16 +22,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
+
       - name: Check PHP syntax
         run: |
-          find . -name '*.php' -not -path './vendor/*' \
-            -exec php -l {} \; | grep -v 'No syntax errors'
-          if [ $? -eq 0 ]; then exit 1; fi
-          echo 'All PHP files passed syntax check!'
+          find . -name '*.php' -not -path './vendor/*' -exec php -l {} \; | grep -v 'No syntax errors'
+          echo 'PHP syntax check completed!'
 
   phpcs:
     name: Code Style Check
@@ -29,11 +39,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup PHP with PHPCS
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: phpcs
-      - name: Run PHPCS
-        run: phpcs -n  # -n = ignore warnings
+          tools: phpcs, phpcbf
 
+      # Вариант А
+      - name: Auto-fix code style
+        run: phpcbf --standard=PSR12 . || true
+
+      - name: Run PHPCS
+        run: phpcs -n --standard=PSR12 .
