@@ -112,6 +112,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             border-color: #b0b0b0;
         }
 
+        .logout-btn[style*="background: #ff6b35"]:hover {
+            background: #ff5419 !important;
+            border-color: #ff5419 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
         /* Основной контейнер */
         .main-container {
             max-width: 1200px;
@@ -981,6 +988,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 <h1>Auto Dealership</h1>
             </div>
             <div class="header-right">
+                <a href="credit-calculator.php" class="logout-btn" style="background: #ff6b35; color: white; border-color: #ff6b35;">
+                    <i class="fas fa-calculator"></i>
+                    Рассчитать кредит
+                </a>
                 <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'manager'): ?>
                 <a href="manager.php" class="logout-btn" style="background: #007bff; color: white;">
                     <i class="fas fa-cog"></i>
@@ -1537,5 +1548,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             }
         });
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

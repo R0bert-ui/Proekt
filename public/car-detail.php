@@ -1015,5 +1015,6 @@ if (!$carId) {
         // Загрузка при загрузке страницы
         document.addEventListener('DOMContentLoaded', loadCarDetails);
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

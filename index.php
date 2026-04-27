@@ -127,7 +127,7 @@ a:hover{border-color:#3498db;color:#3498db;}
       <?php endif; ?>
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Пароль" required />
-      <a href="#">Забыли пароль?</a>
+      
       <button type="submit">Войти</button>
       <input type="hidden" name="action" value="login">
     </form>
