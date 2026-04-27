@@ -112,11 +112,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
             border-color: #b0b0b0;
         }
 
-        .logout-btn[style*="background: #ff6b35"]:hover {
-            background: #ff5419 !important;
-            border-color: #ff5419 !important;
+        .logout-btn[style*="background: #007bff"]:hover {
+            background: #0052a3 !important;
+            border-color: #0052a3 !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         }
 
         /* Основной контейнер */
@@ -988,7 +988,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
                 <h1>Auto Dealership</h1>
             </div>
             <div class="header-right">
-                <a href="credit-calculator.php" class="logout-btn" style="background: #ff6b35; color: white; border-color: #ff6b35;">
+                <a href="credit-calculator.php" class="logout-btn" style="background: #007bff; color: white; border-color: #007bff;">
                     <i class="fas fa-calculator"></i>
                     Рассчитать кредит
                 </a>
