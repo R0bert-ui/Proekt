@@ -15,12 +15,23 @@ class Application {
         $this->conn = $db;
     }
     public function create() {
+        $fields = ['car_id', 'full_name', 'phone', 'email', 'comment', 'status'];
+        $params = [':car_id', ':full_name', ':phone', ':email', ':comment', ':status'];
+
+        if (!empty($this->user_id)) {
+            array_splice($fields, 1, 0, 'user_id');
+            array_splice($params, 1, 0, ':user_id');
+        }
+
         $sql = 'INSERT INTO ' . $this->table
-            . ' (car_id, user_id, full_name, phone, email, comment, status) '
-            . 'VALUES (:car_id, :user_id, :full_name, :phone, :email, :comment, :status)';
+            . ' (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $params) . ')';
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':car_id', $this->car_id);
-        $stmt->bindParam(':user_id', $this->user_id);
+
+        if (!empty($this->user_id)) {
+            $stmt->bindParam(':user_id', $this->user_id);
+        }
+
         $stmt->bindParam(':full_name', $this->full_name);
         $stmt->bindParam(':phone', $this->phone);
         $stmt->bindParam(':email', $this->email);

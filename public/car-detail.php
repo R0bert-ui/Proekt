@@ -863,10 +863,118 @@ if (!$carId) {
             </div>
         </div>
 
+        <div id="applicationModal" class="modal" aria-hidden="true">
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <div class="modal-card-header">
+                    <h3 id="modalTitle">Заявка на покупку автомобиля</h3>
+                    <button type="button" class="modal-close" onclick="closeApplicationModal()" aria-label="Закрыть">×</button>
+                </div>
+                <div id="applicationMessage" class="modal-message"></div>
+                <form id="applicationForm" class="modal-form" onsubmit="submitApplication(event)">
+                    <input type="hidden" id="applicationCarId" value="<?php echo $carId; ?>">
+                    <label class="modal-label">ФИО
+                        <input id="applicationFullName" type="text" placeholder="Иван Иванов" required>
+                    </label>
+                    <label class="modal-label">Телефон
+                        <input id="applicationPhone" type="text" placeholder="+7 (777) 123-45-67" required>
+                    </label>
+                    <label class="modal-label">Email
+                        <input id="applicationEmail" type="email" placeholder="email@example.com" required>
+                    </label>
+                    <label class="modal-label">Комментарий
+                        <textarea id="applicationComment" rows="4" placeholder="Укажите дополнительные пожелания"></textarea>
+                    </label>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeApplicationModal()">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div id="error" style="display: none; background: #fee; border: 1px solid #f99; padding: 20px; border-radius: 6px; color: #c33;">
             Не удалось загрузить данные автомобиля
         </div>
     </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-card {
+            width: 100%;
+            max-width: 540px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .modal-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .modal-card-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .modal-close {
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .modal-message {
+            padding: 0 20px 10px;
+            min-height: 22px;
+            font-size: 14px;
+        }
+        .modal-message.success {
+            color: #116a0e;
+        }
+        .modal-message.error {
+            color: #a00;
+        }
+        .modal-form {
+            padding: 0 20px 20px;
+        }
+        .modal-label {
+            display: block;
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #333;
+        }
+        .modal-label input,
+        .modal-label textarea {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+        }
+    </style>
 
     <script>
         const carId = <?php echo $carId; ?>;
@@ -1009,7 +1117,69 @@ if (!$carId) {
         }
 
         function createApplication() {
-            alert('Функция подачи заявки будет реализована скоро');
+            openApplicationModal();
+        }
+
+        function openApplicationModal() {
+            const modal = document.getElementById('applicationModal');
+            const message = document.getElementById('applicationMessage');
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            message.textContent = '';
+            message.className = 'modal-message';
+        }
+
+        function closeApplicationModal() {
+            const modal = document.getElementById('applicationModal');
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        async function submitApplication(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById('applicationFullName').value.trim();
+            const phone = document.getElementById('applicationPhone').value.trim();
+            const email = document.getElementById('applicationEmail').value.trim();
+            const comment = document.getElementById('applicationComment').value.trim();
+            const message = document.getElementById('applicationMessage');
+
+            message.textContent = '';
+            message.className = 'modal-message';
+
+            const payload = {
+                car_id: carId,
+                full_name: fullName,
+                phone: phone,
+                email: email,
+                comment: comment
+            };
+
+            try {
+                const response = await fetch('../api/applications.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || result.success !== true) {
+                    message.textContent = result.error || (result.message || 'Ошибка при отправке заявки');
+                    message.classList.add('error');
+                    return;
+                }
+
+                message.textContent = 'Заявка успешно отправлена. Спасибо!';
+                message.classList.add('success');
+                document.getElementById('applicationForm').reset();
+            } catch (error) {
+                message.textContent = 'Серверная ошибка при отправке заявки';
+                message.classList.add('error');
+                console.error(error);
+            }
         }
 
         // Загрузка при загрузке страницы
