@@ -146,8 +146,8 @@ $stats['total_applications'] = $pdo->query("SELECT COUNT(*) FROM applications")-
 $stats['pending_applications'] = $pdo->query("SELECT COUNT(*) FROM applications WHERE status = 'new'")->fetchColumn();
 $stats['approved_applications'] = $pdo->query("SELECT COUNT(*) FROM applications WHERE status = 'approved'")->fetchColumn();
 $stats['rejected_applications'] = $pdo->query("SELECT COUNT(*) FROM applications WHERE status = 'rejected'")->fetchColumn();
-$stats['monthly_sales'] = $pdo->query("SELECT COUNT(*) FROM cars WHERE status = 'sold' AND MONTH(created_at) = MONTH(CURRENT_DATE) AND YEAR(created_at) = YEAR(CURRENT_DATE)")->fetchColumn();
-$stats['monthly_revenue'] = $pdo->query("SELECT SUM(price) FROM cars WHERE status = 'sold' AND MONTH(created_at) = MONTH(CURRENT_DATE) AND YEAR(created_at) = YEAR(CURRENT_DATE)")->fetchColumn() ?? 0;
+$stats['monthly_sales'] = $car->getMonthlySoldCount();
+$stats['monthly_revenue'] = $car->getMonthlyRevenue();
 
 ?>
 

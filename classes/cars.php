@@ -102,7 +102,11 @@ class Car {
         return $stmt->execute();
     }
     public function markSold($id) {
-        $sql = 'UPDATE ' . $this->table . ' SET status = \'sold\' WHERE id = :id';
+        if ($this->columnExists('sold_at')) {
+            $sql = 'UPDATE ' . $this->table . ' SET status = \'sold\', sold_at = NOW() WHERE id = :id';
+        } else {
+            $sql = 'UPDATE ' . $this->table . ' SET status = \'sold\' WHERE id = :id';
+        }
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
@@ -119,6 +123,28 @@ class Car {
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['count'];
+    }
+    public function columnExists($column) {
+        $stmt = $this->conn->prepare('SHOW COLUMNS FROM ' . $this->table . ' LIKE :column');
+        $stmt->bindParam(':column', $column);
+        $stmt->execute();
+        return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public function getMonthlySoldCount() {
+        $dateField = $this->columnExists('sold_at') ? 'COALESCE(sold_at, created_at)' : 'created_at';
+        $sql = 'SELECT COUNT(*) as count FROM ' . $this->table . ' WHERE status = \'sold\' AND MONTH(' . $dateField . ') = MONTH(CURRENT_DATE) AND YEAR(' . $dateField . ') = YEAR(CURRENT_DATE)';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int) $row['count'];
+    }
+    public function getMonthlyRevenue() {
+        $dateField = $this->columnExists('sold_at') ? 'COALESCE(sold_at, created_at)' : 'created_at';
+        $sql = 'SELECT SUM(price) as revenue FROM ' . $this->table . ' WHERE status = \'sold\' AND MONTH(' . $dateField . ') = MONTH(CURRENT_DATE) AND YEAR(' . $dateField . ') = YEAR(CURRENT_DATE)';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['revenue'] !== null ? (float) $row['revenue'] : 0;
     }
 
     public function searchWithFilters($filters = []) {
